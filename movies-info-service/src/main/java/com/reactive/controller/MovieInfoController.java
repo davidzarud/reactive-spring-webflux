@@ -5,6 +5,7 @@ import com.reactive.service.MovieInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -18,5 +19,12 @@ public class MovieInfoController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<MovieInfo> addMovieInfo(@RequestBody MovieInfo movieInfo) {
         return movieInfoService.addMovieInfo(movieInfo);
+    }
+
+    @GetMapping("/movieinfos")
+    @ResponseStatus(HttpStatus.OK)
+    public Flux<MovieInfo> getAllMovieInfos() {
+
+        return movieInfoService.getAllMovieInfos();
     }
 }
