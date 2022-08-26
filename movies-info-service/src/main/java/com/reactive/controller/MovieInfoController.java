@@ -24,7 +24,12 @@ public class MovieInfoController {
     @GetMapping("/movieinfos")
     @ResponseStatus(HttpStatus.OK)
     public Flux<MovieInfo> getAllMovieInfos() {
-
         return movieInfoService.getAllMovieInfos();
+    }
+
+    @GetMapping("/movieinfos/{movieInfoId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<MovieInfo> getMovieInfoById(@PathVariable String movieInfoId) {
+        return movieInfoService.findMovieInfoById(movieInfoId);
     }
 }

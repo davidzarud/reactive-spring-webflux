@@ -92,11 +92,35 @@ class MovieInfoControllerIntegrationTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(MovieInfo.class)
+                .hasSize(3)
                 .consumeWith(listEntityExchangeResult -> {
                     var responseBody = listEntityExchangeResult.getResponseBody();
                     assertThat(responseBody).isNotNull();
                     assertThat(!CollectionUtils.isEmpty(responseBody)).isTrue();
-                    assertThat(responseBody.size()).isEqualTo(3);
+                    countDownLatch.countDown();
+                });
+
+        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        assertThat(countDownLatch.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    void findMovieInfoById() throws InterruptedException {
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        MovieInfo movieInfo = movieInfoList.get(0);
+
+        webTestClient.get()
+                .uri(MOVIE_INFOS_URI + "/" + movieInfo.getMovieInfoId())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(MovieInfo.class)
+                .consumeWith(movieInfoEntityExchangeResult -> {
+
+                    var movieInfoResult = movieInfoEntityExchangeResult.getResponseBody();
+                    assertThat(movieInfoResult).isNotNull();
+                    assertThat(movieInfoResult.getMovieInfoId()).isEqualTo(movieInfo.getMovieInfoId());
+                    assertThat(movieInfoResult.getName()).isEqualTo(movieInfo.getName());
                     countDownLatch.countDown();
                 });
 
