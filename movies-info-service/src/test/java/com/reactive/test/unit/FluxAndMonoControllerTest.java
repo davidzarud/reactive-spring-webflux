@@ -1,6 +1,6 @@
 package com.reactive.test.unit;
 
-import com.reactive.test.controller.MovieInfoController;
+import com.reactive.controller.FluxAndMonoController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -15,8 +15,8 @@ import java.util.Objects;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @AutoConfigureWebTestClient
-@WebFluxTest(MovieInfoController.class)
-class MovieInfoControllerTest {
+@WebFluxTest(FluxAndMonoController.class)
+class FluxAndMonoControllerTest {
 
     @Autowired
     WebTestClient webTestClient;

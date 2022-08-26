@@ -1,4 +1,4 @@
-package com.reactive.test.dao.model;
+package com.reactive.dao.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

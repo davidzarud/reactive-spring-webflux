@@ -1,7 +1,7 @@
 package com.reactive.test.integration;
 
-import com.reactive.test.dao.model.MovieInfo;
-import com.reactive.test.dao.repository.MovieInfoRepository;
+import com.reactive.dao.model.MovieInfo;
+import com.reactive.dao.repository.MovieInfoRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -124,6 +124,37 @@ class MovieInfoRepositoryIntegrationTest {
 
         StepVerifier.create(movieInfoRepository.findAll())
                 .expectNextCount(4)
+                .verifyComplete();
+    }
+
+    @Test
+    void updateMovieInfo() {
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Mono<MovieInfo> movieInfoMono = movieInfoRepository.findById("abc").log();
+        MovieInfo movieInfo = movieInfoMono.block();
+        movieInfo.setName("The Dark Knight Rises");
+
+        Mono<MovieInfo> updatedMovieMono = movieInfoRepository.save(movieInfo).log();
+
+        StepVerifier.create(updatedMovieMono)
+                .assertNext(updatedMovieInfo -> {
+                    assertThat(updatedMovieInfo).isNotNull();
+                    assertThat(updatedMovieInfo.getName()).isEqualTo("The Dark Knight Rises");
+                    countDownLatch.countDown();;
+                }).verifyComplete();
+
+        assertThat(countDownLatch.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    void deleteMovieInfo() {
+
+        movieInfoRepository.deleteById("abc").log().block();
+        Flux<MovieInfo> movieInfoFlux = movieInfoRepository.findAll().log();
+
+        StepVerifier.create(movieInfoFlux)
+                .expectNextCount(2)
                 .verifyComplete();
     }
 }

@@ -1,4 +1,4 @@
-package com.reactive.test.controller;
+package com.reactive.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,10 +7,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.List;
 
 @RestController
-public class MovieInfoController {
+public class FluxAndMonoController {
 
     @GetMapping("/flux")
     public Flux<Integer> flux() {

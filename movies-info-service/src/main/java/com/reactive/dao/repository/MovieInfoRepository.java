@@ -1,6 +1,6 @@
-package com.reactive.test.dao.repository;
+package com.reactive.dao.repository;
 
-import com.reactive.test.dao.model.MovieInfo;
+import com.reactive.dao.model.MovieInfo;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
