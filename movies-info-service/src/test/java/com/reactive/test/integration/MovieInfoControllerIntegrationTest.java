@@ -174,7 +174,7 @@ class MovieInfoControllerIntegrationTest {
         webTestClient.delete()
                 .uri(MOVIE_INFOS_URI + "/{id}", "abc")
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().isNoContent()
                 .expectBody(Void.class);
 
         webTestClient.get()
