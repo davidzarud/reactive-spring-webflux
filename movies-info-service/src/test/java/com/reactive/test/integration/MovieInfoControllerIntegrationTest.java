@@ -127,4 +127,19 @@ class MovieInfoControllerIntegrationTest {
         countDownLatch.await(1000, TimeUnit.MILLISECONDS);
         assertThat(countDownLatch.getCount()).isEqualTo(0);
     }
+
+    @Test
+    void findMovieInfoById_v2() {
+
+        MovieInfo movieInfo = movieInfoList.get(0);
+
+        webTestClient.get()
+                .uri(MOVIE_INFOS_URI + "/" + movieInfo.getMovieInfoId())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo(movieInfo.getName())
+                .jsonPath("$.cast[0]").isEqualTo(movieInfo.getCast().get(0))
+                .jsonPath("$.year").isEqualTo(movieInfo.getYear());
+    }
 }
