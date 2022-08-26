@@ -167,4 +167,21 @@ class MovieInfoControllerIntegrationTest {
                 .jsonPath("$.year").isEqualTo(2012)
                 .jsonPath("$.name").isEqualTo("Dark Knight Rises");
     }
+
+    @Test
+    void deleteMovieById() {
+
+        webTestClient.delete()
+                .uri(MOVIE_INFOS_URI + "/{id}", "abc")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Void.class);
+
+        webTestClient.get()
+                .uri(MOVIE_INFOS_URI)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(MovieInfo.class)
+                .hasSize(2);
+    }
 }

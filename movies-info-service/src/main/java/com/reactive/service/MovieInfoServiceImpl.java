@@ -39,4 +39,9 @@ public class MovieInfoServiceImpl implements MovieInfoService {
                      return movieInfoRepository.save(movieInfo);
                  });
     }
+
+    @Override
+    public Mono<Void> deleteMovieById(String movieInfoId) {
+        return movieInfoRepository.deleteById(movieInfoId);
+    }
 }
