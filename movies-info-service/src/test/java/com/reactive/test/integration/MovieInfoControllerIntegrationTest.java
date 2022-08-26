@@ -14,7 +14,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -141,5 +143,28 @@ class MovieInfoControllerIntegrationTest {
                 .jsonPath("$.name").isEqualTo(movieInfo.getName())
                 .jsonPath("$.cast[0]").isEqualTo(movieInfo.getCast().get(0))
                 .jsonPath("$.year").isEqualTo(movieInfo.getYear());
+    }
+
+    @Test
+    void updateMovieById() {
+
+        List<String> updatedCast = new ArrayList<>(movieInfoList.get(0).getCast());
+        updatedCast.add("Anne Hathaway");
+        MovieInfo movieInfo = MovieInfo.builder()
+                .name("Dark Knight Rises")
+                .year(2012)
+                .releaseDate(LocalDate.parse("2012-07-20"))
+                .cast(updatedCast)
+                .build();
+
+        webTestClient.put()
+                .uri(MOVIE_INFOS_URI + "/{movieInfoId}", "abc")
+                .bodyValue(movieInfo)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.cast[2]").isEqualTo("Anne Hathaway")
+                .jsonPath("$.year").isEqualTo(2012)
+                .jsonPath("$.name").isEqualTo("Dark Knight Rises");
     }
 }

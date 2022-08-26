@@ -27,4 +27,16 @@ public class MovieInfoServiceImpl implements MovieInfoService {
     public Mono<MovieInfo> findMovieInfoById(String movieInfoId) {
         return movieInfoRepository.findById(movieInfoId);
     }
+
+    @Override
+    public Mono<MovieInfo> updateMovieInfoById(String movieInfoId, MovieInfo updatedMovieInfo) {
+         return movieInfoRepository.findById(movieInfoId)
+                 .flatMap(movieInfo -> {
+                     movieInfo.setName(updatedMovieInfo.getName());
+                     movieInfo.setYear(updatedMovieInfo.getYear());
+                     movieInfo.setReleaseDate(updatedMovieInfo.getReleaseDate());
+                     movieInfo.setCast(updatedMovieInfo.getCast());
+                     return movieInfoRepository.save(movieInfo);
+                 });
+    }
 }

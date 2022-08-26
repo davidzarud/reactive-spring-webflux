@@ -32,4 +32,10 @@ public class MovieInfoController {
     public Mono<MovieInfo> getMovieInfoById(@PathVariable String movieInfoId) {
         return movieInfoService.findMovieInfoById(movieInfoId);
     }
+
+    @PutMapping("/movieinfos/{movieInfoId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<MovieInfo> updateMovieInfoById(@PathVariable String movieInfoId, @RequestBody MovieInfo updatedMovieInfo) {
+        return movieInfoService.updateMovieInfoById(movieInfoId, updatedMovieInfo);
+    }
 }
