@@ -34,6 +34,8 @@ class MovieInfoRepositoryIntegrationTest {
 
         movieInfoList = List.of(new MovieInfo(null, "Batman Begins",
                         2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15")),
+                new MovieInfo(null, "Bla Bla",
+                        2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15")),
                 new MovieInfo(null, "The Dark Knight",
                         2008, List.of("Christian Bale", "HeathLedger"), LocalDate.parse("2008-07-18")),
                 new MovieInfo("abc", "Dark Knight Rises",
@@ -157,4 +159,37 @@ class MovieInfoRepositoryIntegrationTest {
                 .expectNextCount(2)
                 .verifyComplete();
     }
+
+    @Test
+    void findAllByYear() {
+
+        Flux<MovieInfo> movieInfoFlux = movieInfoRepository.findByYear(2005).log();
+
+        StepVerifier.create(movieInfoFlux)
+                .consumeNextWith(movieInfo -> {
+                    assertThat(movieInfo).isNotNull();
+                    assertThat(movieInfo.getYear()).isEqualTo(2005);
+                }).expectNextCount(1)
+                .verifyComplete();
+    }
+
+    @Test
+    void findByName() throws InterruptedException {
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        String movieName = "Dark Knight Rises";
+        Mono<MovieInfo> movieInfoMono = movieInfoRepository.findByName(movieName);
+
+        StepVerifier.create(movieInfoMono)
+                .consumeNextWith(movieInfo -> {
+                    assertThat(movieInfo).isNotNull();
+                    assertThat(movieInfo.getName()).isEqualTo(movieName);
+                    countDownLatch.countDown();
+                }).verifyComplete();
+
+        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        assertThat(countDownLatch.getCount()).isEqualTo(0);
+
+    }
+
 }

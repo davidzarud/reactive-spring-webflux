@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -41,6 +42,8 @@ class MovieInfoControllerIntegrationTest {
     void setUp() {
 
         movieInfoList = List.of(new MovieInfo(null, "Batman Begins",
+                        2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15")),
+                new MovieInfo(null, "New Movie",
                         2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15")),
                 new MovieInfo(null, "The Dark Knight",
                         2008, List.of("Christian Bale", "HeathLedger"), LocalDate.parse("2008-07-18")),
@@ -132,6 +135,17 @@ class MovieInfoControllerIntegrationTest {
     }
 
     @Test
+    void findMovieInfoByIdNotFound() {
+
+        String movieInfoId = "def123";
+
+        webTestClient.get()
+                .uri(MOVIE_INFOS_URI + "/" + movieInfoId)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
     void findMovieInfoById_v2() {
 
         MovieInfo movieInfo = movieInfoList.get(0);
@@ -201,5 +215,22 @@ class MovieInfoControllerIntegrationTest {
                 .expectStatus().isOk()
                 .expectBodyList(MovieInfo.class)
                 .hasSize(2);
+    }
+
+    @Test
+    void findAllMoviesByYear() {
+
+        int year = 2005;
+
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder.path(MOVIE_INFOS_URI).queryParam("year", year).build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(MovieInfo.class)
+                .consumeWith(listEntityExchangeResult -> {
+                    List<MovieInfo> movieInfoList = listEntityExchangeResult.getResponseBody();
+                    assertThat(CollectionUtils.isEmpty(movieInfoList)).isFalse();
+                    assertThat(movieInfoList.size()).isEqualTo(2);
+                });
     }
 }
