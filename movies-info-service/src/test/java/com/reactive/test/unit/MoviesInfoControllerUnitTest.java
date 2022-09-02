@@ -14,7 +14,9 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -149,5 +151,51 @@ public class MoviesInfoControllerUnitTest {
                 .exchange()
                 .expectStatus().isNoContent()
                 .expectBody(Void.class);
+    }
+
+    @Test
+    void addMovieFailValidation() {
+
+        MovieInfo movieInfo = MovieInfo.builder()
+                .year(2015)
+                .cast(Collections.emptyList())
+                .releaseDate(LocalDate.parse("2022-01-01"))
+                .build();
+
+        webTestClient.post()
+                .uri(MOVIE_INFOS_URI)
+                .bodyValue(movieInfo)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(String.class)
+                .consumeWith(stringEntityExchangeResult -> {
+
+                    String response = stringEntityExchangeResult.getResponseBody();
+                    assertThat(response).isNotBlank();
+                    assertThat(response).isEqualTo("Movie cast can't be empty, Movie name must not be empty");
+                });
+    }
+
+    @Test
+    void addMovieFailValidation_blankCastName() {
+
+        MovieInfo movieInfo = MovieInfo.builder()
+                .year(2015)
+                .cast(List.of("David", ""))
+                .releaseDate(LocalDate.parse("2022-01-01"))
+                .build();
+
+        webTestClient.post()
+                .uri(MOVIE_INFOS_URI)
+                .bodyValue(movieInfo)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(String.class)
+                .consumeWith(stringEntityExchangeResult -> {
+
+                    String response = stringEntityExchangeResult.getResponseBody();
+                    assertThat(response).isNotBlank();
+                    assertThat(response).isEqualTo("Cast name can't be blank, Movie name must not be empty");
+                });
     }
 }

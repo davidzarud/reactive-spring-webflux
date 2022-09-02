@@ -47,20 +47,20 @@ class FluxAndMonoControllerTest {
                 .verifyComplete();
     }
 
-    @Test
-    void flux_content_v2() {
-
-        Flux<Integer> flux = webTestClient.get()
-                .uri(URI.create("/flux"))
-                .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBodyList(Integer.class)
-                .consumeWith(listEntityExchangeResult -> {
-                    var responseBody = listEntityExchangeResult.getResponseBody();
-                    assertThat(Objects.requireNonNull(responseBody).size()).isEqualTo(7);
-                });
-
-    }
+//    @Test
+//    void flux_content_v2() {
+//
+//        Flux<Integer> flux = webTestClient.get()
+//                .uri(URI.create("/flux"))
+//                .exchange()
+//                .expectStatus().is2xxSuccessful()
+//                .expectBodyList(Integer.class)
+//                .consumeWith(listEntityExchangeResult -> {
+//                    var responseBody = listEntityExchangeResult.getResponseBody();
+//                    assertThat(Objects.requireNonNull(responseBody).size()).isEqualTo(7);
+//                });
+//
+//    }
 
     @Test
     void mono() {

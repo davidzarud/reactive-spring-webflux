@@ -4,9 +4,12 @@ import com.reactive.dao.model.MovieInfo;
 import com.reactive.service.MovieInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/v1")
@@ -17,7 +20,7 @@ public class MovieInfoController {
 
     @PostMapping("/movieinfos")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<MovieInfo> addMovieInfo(@RequestBody MovieInfo movieInfo) {
+    public Mono<MovieInfo> addMovieInfo(@RequestBody @Valid MovieInfo movieInfo) {
         return movieInfoService.addMovieInfo(movieInfo);
     }
 
@@ -35,8 +38,11 @@ public class MovieInfoController {
 
     @PutMapping("/movieinfos/{movieInfoId}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<MovieInfo> updateMovieInfoById(@PathVariable String movieInfoId, @RequestBody MovieInfo updatedMovieInfo) {
-        return movieInfoService.updateMovieInfoById(movieInfoId, updatedMovieInfo);
+    public Mono<ResponseEntity<MovieInfo>> updateMovieInfoById(@PathVariable String movieInfoId, @RequestBody @Valid MovieInfo updatedMovieInfo) {
+        return movieInfoService.updateMovieInfoById(movieInfoId, updatedMovieInfo)
+                .map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()))
+                .log();
     }
 
     @DeleteMapping("/movieinfos/{movieInfoId}")
