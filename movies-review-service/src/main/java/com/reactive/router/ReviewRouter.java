@@ -1,6 +1,5 @@
 package com.reactive.router;
 
-import com.reactive.dao.model.Review;
 import com.reactive.handler.ReviewHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +18,7 @@ public class ReviewRouter {
                 .nest(path("/v1/reviews"), builder -> {
                     builder.POST("", reviewHandler::addNewReview)
                             .GET("", reviewHandler::getAllReviews)
-                            .GET("/{id}", reviewHandler::getReviewById)
+                            .GET("/{id}", reviewHandler::getReviews)
                             .PUT("/{id}", reviewHandler::updateReview)
                             .DELETE("/{id}", reviewHandler::deleteReview);
                 })

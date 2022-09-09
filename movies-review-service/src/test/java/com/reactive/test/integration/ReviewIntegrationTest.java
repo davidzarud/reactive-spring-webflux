@@ -5,15 +5,14 @@ import com.reactive.dao.repository.ReviewRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -39,7 +38,7 @@ public class ReviewIntegrationTest {
         reviewRepository.saveAll(List.of(
                 Review.builder().reviewId("631b19fd61b52a21d88c3b54").movieInfoId(1L).rating(9.0).comment("Amazing").build(),
                 Review.builder().reviewId("631b19fd61b52a21d88c3b55").movieInfoId(2L).rating(6.7).comment("Boring").build(),
-                Review.builder().reviewId("631b19fd61b52a21d88c3b56").movieInfoId(3L).rating(8.0).comment("Fun").build()))
+                Review.builder().reviewId("631b19fd61b52a21d88c3b56").movieInfoId(2L).rating(8.0).comment("Fun").build()))
                 .blockLast();
 
     }
@@ -88,6 +87,28 @@ public class ReviewIntegrationTest {
                     assertThat(reviews).isNotNull();
                     assertThat(reviews.isEmpty()).isFalse();
                     assertThat(reviews.size()).isEqualTo(3);
+                    countDownLatch.countDown();
+                });
+
+        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        assertThat(countDownLatch.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void getAllReviewsByMovieInfoId() throws InterruptedException {
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder.path(REVIEW_URI).queryParamIfPresent("movieInfoId", Optional.of(2)).build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Review.class)
+                .consumeWith(listEntityExchangeResult -> {
+                    List<Review> reviewList = listEntityExchangeResult.getResponseBody();
+                    assertThat(reviewList).isNotNull();
+                    assertThat(reviewList.size()).isEqualTo(2);
+                    reviewList.forEach(review -> assertThat(review.getMovieInfoId()).isEqualTo(2));
                     countDownLatch.countDown();
                 });
 
@@ -195,7 +216,7 @@ public class ReviewIntegrationTest {
                     assertThat(review.getReviewId()).isEqualTo("631b19fd61b52a21d88c3b56");
                     assertThat(review.getRating()).isEqualTo(8.0);
                     assertThat(review.getComment()).isEqualTo("Fun");
-                    assertThat(review.getMovieInfoId()).isEqualTo(3L);
+                    assertThat(review.getMovieInfoId()).isEqualTo(2L);
                     countDownLatch.countDown();
                 });
 

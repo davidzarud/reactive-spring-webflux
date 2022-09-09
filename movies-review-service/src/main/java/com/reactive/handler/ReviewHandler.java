@@ -9,6 +9,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @Configuration
 @RequiredArgsConstructor
 public class ReviewHandler {
@@ -24,7 +26,9 @@ public class ReviewHandler {
 
     public Mono<ServerResponse> getAllReviews(ServerRequest request) {
 
-        return ServerResponse.ok().body(reviewRepository.findAll(), Review.class);
+        return request.queryParam("movieInfoId")
+                .map(s -> ServerResponse.ok().body(reviewRepository.findByMovieInfoId(Long.valueOf(s)), Review.class))
+                .orElseGet(() -> ServerResponse.ok().body(reviewRepository.findAll(), Review.class));
     }
 
     public Mono<ServerResponse> updateReview(ServerRequest request) {
@@ -51,7 +55,7 @@ public class ReviewHandler {
                 .then(ServerResponse.noContent().build());
     }
 
-    public Mono<ServerResponse> getReviewById(ServerRequest request) {
+    public Mono<ServerResponse> getReviews(ServerRequest request) {
 
         return reviewRepository.findById(request.pathVariable("id"))
                 .flatMap(review -> ServerResponse.ok().bodyValue(review))
