@@ -148,7 +148,7 @@ public class ReviewIntegrationTest {
         webTestClient.delete()
                 .uri(REVIEW_URI + "/{reviewId}", reviewId)
                 .exchange()
-                .expectStatus().isNotFound();
+                .expectStatus().isNoContent();
     }
 
     @Test
@@ -159,10 +159,47 @@ public class ReviewIntegrationTest {
         webTestClient.delete()
                 .uri(REVIEW_URI + "/{reviewId}", reviewId)
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().isNoContent()
                 .expectBody(Void.class);
 
         assertThat(reviewRepository.findAll().map(review -> review).collect(Collectors.toList()).block()).isNotNull();
         assertThat(reviewRepository.findAll().map(review -> review).collect(Collectors.toList()).block().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void findById_notFound() {
+
+        String reviewId = "123";
+
+        webTestClient.get()
+                .uri(REVIEW_URI + "/{id}", reviewId)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void findById() throws InterruptedException {
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        String reviewId = "631b19fd61b52a21d88c3b56";
+
+        webTestClient.get()
+                .uri(REVIEW_URI + "/{id}", reviewId)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Review.class)
+                .consumeWith(reviewEntityExchangeResult -> {
+
+                    Review review = reviewEntityExchangeResult.getResponseBody();
+                    assertThat(review).isNotNull();
+                    assertThat(review.getReviewId()).isEqualTo("631b19fd61b52a21d88c3b56");
+                    assertThat(review.getRating()).isEqualTo(8.0);
+                    assertThat(review.getComment()).isEqualTo("Fun");
+                    assertThat(review.getMovieInfoId()).isEqualTo(3L);
+                    countDownLatch.countDown();
+                });
+
+        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        assertThat(countDownLatch.getCount()).isEqualTo(0);
     }
 }
