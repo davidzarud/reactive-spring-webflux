@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: dev
+
+server:
+  port: 8081
+---
+
+spring:
+  profiles: dev
+
+---
+
+spring:
+  profiles: test
+  mongodb:
+    embedded:
+      version: 4.0.21
+

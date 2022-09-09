@@ -57,7 +57,7 @@ class MovieInfoRepositoryIntegrationTest {
         Flux<MovieInfo> movieInfoFlux = movieInfoRepository.findAll().log();
 
         StepVerifier.create(movieInfoFlux)
-                .expectNextCount(3)
+                .expectNextCount(4)
                 .verifyComplete();
     }
 
@@ -68,8 +68,8 @@ class MovieInfoRepositoryIntegrationTest {
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         movieInfoMono.subscribe(movieInfo -> {
-            assertThat(movieInfo.getName()).isEqualTo(movieInfoList.get(2).getName());
-            assertThat(movieInfo.getCast()).isEqualTo(movieInfoList.get(2).getCast());
+            assertThat(movieInfo.getName()).isEqualTo(movieInfoList.get(3).getName());
+            assertThat(movieInfo.getCast()).isEqualTo(movieInfoList.get(3).getCast());
             countDownLatch.countDown();
         });
 
@@ -85,8 +85,8 @@ class MovieInfoRepositoryIntegrationTest {
 
         StepVerifier.create(movieInfoMono)
                 .assertNext(movieInfo -> {
-                    assertThat(movieInfo.getName()).isEqualTo(movieInfoList.get(2).getName());
-                    assertThat(movieInfo.getCast()).isEqualTo(movieInfoList.get(2).getCast());
+                    assertThat(movieInfo.getName()).isEqualTo(movieInfoList.get(3).getName());
+                    assertThat(movieInfo.getCast()).isEqualTo(movieInfoList.get(3).getCast());
                     countDownLatch.countDown();
                 }).verifyComplete();
 
@@ -102,8 +102,8 @@ class MovieInfoRepositoryIntegrationTest {
 
         StepVerifier.create(movieInfoMono)
                 .consumeNextWith(movieInfo -> {
-                    assertThat(movieInfo.getName()).isEqualTo(movieInfoList.get(2).getName());
-                    assertThat(movieInfo.getCast()).isEqualTo(movieInfoList.get(2).getCast());
+                    assertThat(movieInfo.getName()).isEqualTo(movieInfoList.get(3).getName());
+                    assertThat(movieInfo.getCast()).isEqualTo(movieInfoList.get(3).getCast());
                     countDownLatch.countDown();
                 }).verifyComplete();
 
@@ -125,7 +125,7 @@ class MovieInfoRepositoryIntegrationTest {
                 }).verifyComplete();
 
         StepVerifier.create(movieInfoRepository.findAll())
-                .expectNextCount(4)
+                .expectNextCount(5)
                 .verifyComplete();
     }
 
@@ -156,7 +156,7 @@ class MovieInfoRepositoryIntegrationTest {
         Flux<MovieInfo> movieInfoFlux = movieInfoRepository.findAll().log();
 
         StepVerifier.create(movieInfoFlux)
-                .expectNextCount(2)
+                .expectNextCount(3)
                 .verifyComplete();
     }
 

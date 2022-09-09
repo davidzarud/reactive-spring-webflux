@@ -98,7 +98,7 @@ class MovieInfoControllerIntegrationTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(MovieInfo.class)
-                .hasSize(3)
+                .hasSize(4)
                 .consumeWith(listEntityExchangeResult -> {
                     var responseBody = listEntityExchangeResult.getResponseBody();
                     assertThat(responseBody).isNotNull();
@@ -214,7 +214,7 @@ class MovieInfoControllerIntegrationTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(MovieInfo.class)
-                .hasSize(2);
+                .hasSize(3);
     }
 
     @Test
