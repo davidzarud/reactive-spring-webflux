@@ -26,4 +26,25 @@ public class ReviewHandler {
 
         return ServerResponse.ok().body(reviewRepository.findAll(), Review.class);
     }
+
+    public Mono<ServerResponse> updateReview(ServerRequest request) {
+
+        return reviewRepository.findById(request.pathVariable("id"))
+                .flatMap(review -> request.bodyToMono(Review.class)
+                .map(updatedReview -> {
+
+                    review.setComment(updatedReview.getComment());
+                    review.setRating(updatedReview.getRating());
+                    return review;
+                }))
+                .flatMap(reviewRepository::save)
+                .flatMap(review -> ServerResponse.ok().bodyValue(review))
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
+    public Mono<ServerResponse> deleteReview(ServerRequest request) {
+
+        return reviewRepository.deleteById(request.pathVariable("id"))
+                .flatMap(review -> ServerResponse.ok().build());
+    }
 }

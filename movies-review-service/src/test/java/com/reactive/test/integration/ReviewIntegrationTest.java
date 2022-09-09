@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -35,9 +36,10 @@ public class ReviewIntegrationTest {
     @BeforeEach
     void setUp() {
 
-        reviewRepository.saveAll(List.of(Review.builder().movieInfoId(1L).rating(9.0).comment("Amazing").build(),
-                Review.builder().movieInfoId(2L).rating(6.7).comment("Boring").build(),
-                Review.builder().movieInfoId(3L).rating(8.0).comment("Fun").build()))
+        reviewRepository.saveAll(List.of(
+                Review.builder().reviewId("631b19fd61b52a21d88c3b54").movieInfoId(1L).rating(9.0).comment("Amazing").build(),
+                Review.builder().reviewId("631b19fd61b52a21d88c3b55").movieInfoId(2L).rating(6.7).comment("Boring").build(),
+                Review.builder().reviewId("631b19fd61b52a21d88c3b56").movieInfoId(3L).rating(8.0).comment("Fun").build()))
                 .blockLast();
 
     }
@@ -91,5 +93,76 @@ public class ReviewIntegrationTest {
 
         countDownLatch.await(1000, TimeUnit.MILLISECONDS);
         assertThat(countDownLatch.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void updateReview_notFound() {
+
+        String reviewId = "4";
+
+        webTestClient.put()
+                .uri(REVIEW_URI + "/{reviewId}", reviewId)
+                .bodyValue(Review.builder()
+                        .comment("Movie 1")
+                        .rating(3.0)
+                        .build())
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void updateReview() throws InterruptedException {
+
+        String reviewId = "631b19fd61b52a21d88c3b54";
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        webTestClient.put()
+                .uri(REVIEW_URI + "/{reviewId}", reviewId)
+                .bodyValue(Review.builder()
+                        .comment("Excellent")
+                        .rating(10.0)
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Review.class)
+                .consumeWith(reviewEntityExchangeResult -> {
+
+                    Review updatedReview = reviewEntityExchangeResult.getResponseBody();
+                    assertThat(updatedReview).isNotNull();
+                    assertThat(updatedReview.getReviewId()).isEqualTo("631b19fd61b52a21d88c3b54");
+                    assertThat(updatedReview.getMovieInfoId()).isEqualTo(1L);
+                    assertThat(updatedReview.getComment()).isEqualTo("Excellent");
+                    assertThat(updatedReview.getRating()).isEqualTo(10.0);
+                    countDownLatch.countDown();
+                });
+
+        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        assertThat(countDownLatch.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void deleteById_notFound() {
+
+        String reviewId = "5";
+
+        webTestClient.delete()
+                .uri(REVIEW_URI + "/{reviewId}", reviewId)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void deleteById() {
+
+        String reviewId = "631b19fd61b52a21d88c3b56";
+
+        webTestClient.delete()
+                .uri(REVIEW_URI + "/{reviewId}", reviewId)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Void.class);
+
+        assertThat(reviewRepository.findAll().map(review -> review).collect(Collectors.toList()).block()).isNotNull();
+        assertThat(reviewRepository.findAll().map(review -> review).collect(Collectors.toList()).block().size()).isEqualTo(2);
     }
 }
